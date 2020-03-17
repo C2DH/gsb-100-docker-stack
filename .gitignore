@@ -1,0 +1,3 @@
+docker/.env
+docker/redis-data
+docker/postgres-data
