@@ -1,0 +1,59 @@
+version: '3.7'
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - ./redis-data:/data
+    entrypoint: redis-server --appendonly yes
+    ports:
+      - "63790:6379"
+  postgresdb:
+    image: postgres:12-alpine
+    ports:
+      - "54320:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres-data:/var/lib/postgresql/data
+  miller:
+    image: c2dhunilu/miller-v2:${MILLER_TAG}
+    restart: always
+    environment:
+       MILLER_DATABASE_NAME: ${POSTGRES_DB}
+       MILLER_DATABASE_USER: ${POSTGRES_USER}
+       MILLER_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       MILLER_DATABASE_HOST: postgresdb
+       MILLER_DATABASE_PORT: 5432
+    depends_on:
+      - redis
+      - postgresdb
+    #  - celery
+    entrypoint: python ./manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8008:8000"
+    volumes:
+      - ./.env:/miller/.env
+      - ./schema:/schema
+  celery:
+    image: c2dhunilu/miller-v2:${MILLER_TAG}
+    restart: always
+    environment:
+       MILLER_DATABASE_NAME: ${POSTGRES_DB}
+       MILLER_DATABASE_USER: ${POSTGRES_USER}
+       MILLER_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       MILLER_DATABASE_HOST: postgresdb
+       MILLER_DATABASE_PORT: 5432
+    depends_on:
+      - miller
+    entrypoint: celery -A miller worker -l info
+    volumes:
+      - ./.env:/miller/.env
+      - ./schema:/schema
