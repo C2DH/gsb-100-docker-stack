@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "//schema/document/payload.json",
+    "type": "object",
+    "title": "JSON schema for JSONField:data",
+    "description": "Basic schema for a data field",
+    "required": [
+        "type"
+    ],
+    "properties": {
+        "type": {
+            "$id": "#/properties/type",
+            "type": "string",
+            "title": "type",
+            "description": "Object type",
+            "default": "",
+            "examples": [
+                "other",
+                "video",
+                "picture",
+                "letter"
+            ],
+            "enum": ["other", "video", "picture", "letter"]
+        }
+    }
+}
