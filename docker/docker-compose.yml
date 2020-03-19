@@ -4,7 +4,7 @@ services:
     image: redis:alpine
     restart: always
     volumes:
-      - ./redis-data:/data
+      - ./redis-data:/data:Z
     entrypoint: redis-server --appendonly yes
     ports:
       - "63790:6379"
@@ -18,7 +18,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data:Z
   miller:
     image: c2dhunilu/miller-v2:${MILLER_TAG}
     restart: always
